@@ -2,10 +2,11 @@
 
 namespace Craue\GeoBundle\Doctrine\Query\Mysql;
 
+use Doctrine\ORM\Query\AST\ArithmeticExpression;
 use Doctrine\ORM\Query\AST\Functions\FunctionNode;
-use Doctrine\ORM\Query\Lexer;
 use Doctrine\ORM\Query\Parser;
 use Doctrine\ORM\Query\SqlWalker;
+use Doctrine\ORM\Query\TokenType;
 
 /**
  * Usage: GEO_DISTANCE(latOrigin, lngOrigin, latDestination, lngDestination)
@@ -17,24 +18,24 @@ use Doctrine\ORM\Query\SqlWalker;
  */
 class GeoDistance extends FunctionNode {
 
-	const EARTH_DIAMETER = 12742; // 2 * Earth's radius (6371 km)
+	public const int EARTH_DIAMETER = 12742; // 2 * Earth's radius (6371 km)
 
-	protected $latOrigin;
-	protected $lngOrigin;
-	protected $latDestination;
-	protected $lngDestination;
+	protected ArithmeticExpression $latOrigin;
+	protected ArithmeticExpression $lngOrigin;
+	protected ArithmeticExpression $latDestination;
+	protected ArithmeticExpression $lngDestination;
 
 	public function parse(Parser $parser) : void {
-		$parser->match(Lexer::T_IDENTIFIER);
-		$parser->match(Lexer::T_OPEN_PARENTHESIS);
+		$parser->match(TokenType::T_IDENTIFIER);
+		$parser->match(TokenType::T_OPEN_PARENTHESIS);
 		$this->latOrigin = $parser->ArithmeticExpression();
-		$parser->match(Lexer::T_COMMA);
+		$parser->match(TokenType::T_COMMA);
 		$this->lngOrigin = $parser->ArithmeticExpression();
-		$parser->match(Lexer::T_COMMA);
+		$parser->match(TokenType::T_COMMA);
 		$this->latDestination = $parser->ArithmeticExpression();
-		$parser->match(Lexer::T_COMMA);
+		$parser->match(TokenType::T_COMMA);
 		$this->lngDestination = $parser->ArithmeticExpression();
-		$parser->match(Lexer::T_CLOSE_PARENTHESIS);
+		$parser->match(TokenType::T_CLOSE_PARENTHESIS);
 	}
 
 	public function getSql(SqlWalker $sqlWalker) : string {
